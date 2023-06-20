@@ -1,5 +1,6 @@
 import time
 from locators import Locators
+from selenium.webdriver.common.keys import Keys
 
 
 def test_typing_speed(browser):
@@ -22,9 +23,14 @@ def test_typing_speed(browser):
     time.sleep(2)
     text = browser.find_element(Locators.TEXT).text
 
-    # Ожидаем загрузки страницы и находим поле для ввода текста
-    time.sleep(2)
-    browser.find_element(Locators.INPUT_FIELD).send_keys(text)
+    # Сплитим полученную строку в массив
+    text_to_array = text.split()
+
+    # Вводим слова из полученного текста
+    for i in text_to_array:
+        browser.find_element(Locators.INPUT_FIELD).send_keys(i)
+        browser.send_keys(Keys.SPACE)
+        time.sleep(0.1)
 
     # Ожидаем завершения игры и получаем результаты
     time.sleep(10)
@@ -34,5 +40,6 @@ def test_typing_speed(browser):
     errors = int(browser.find_element(Locators.ERRORS_VALUE).text)
 
     # Проверяем, что скорость набора выше 400 зн/мин и нет ошибок
-    assert speed > human_speed, f"Скорость набора равна {speed}"
-    assert errors == good_result, f" Количество ошибок {errors}"
+    assert speed > human_speed and errors == good_result, \
+        f'Ваша скорость набора = {speed} зн/м, она меньше человеческой на {human_speed - speed}.' \
+        f' Количество ошибок {errors}'
